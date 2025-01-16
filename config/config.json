@@ -3,8 +3,8 @@
     "exchange": {
         "name": "binance",
         "testnet": true,
-        "api_key": "",
-        "api_secret": ""
+        "api_key": "cnsD7QAXpwMUYL90BtdPaYd40naUmYJij9dLqVE7buVXjM5KR5CYp70IEcioP2Tf",
+        "api_secret": "0WMInDk4yP6TVrSba8lOmla8n5ZkR6DvSccPWAVVAqOqdw6UCLc3cYEladtVB1y5"
     },
     "risk_management": {
         "max_position_size": 1000,
