@@ -1,0 +1,42 @@
+{
+    "trading_pairs": ["BTC/USDT", "ETH/USDT", "BNB/USDT"],
+    "exchange": {
+        "name": "binance",
+        "testnet": true,
+        "api_key": "",
+        "api_secret": ""
+    },
+    "risk_management": {
+        "max_position_size": 1000,
+        "max_daily_loss": 100,
+        "max_open_positions": 3,
+        "position_sizing_model": "kelly",
+        "risk_per_trade": 0.02
+    },
+    "data_collection": {
+        "timeframes": ["1m", "5m", "15m", "1h"],
+        "indicators": ["RSI", "MACD", "BB", "ATR"],
+        "update_interval": 60
+    },
+    "analysis": {
+        "min_confidence": 0.7,
+        "strategy_weights": {
+            "trend": 0.4,
+            "momentum": 0.3,
+            "volatility": 0.3
+        }
+    },
+    "execution": {
+        "order_types": ["MARKET", "LIMIT"],
+        "retry_attempts": 3,
+        "retry_delay": 1
+    },
+    "database": {
+        "url": "sqlite:///trading_data.db"
+    },
+    "message_broker": {
+        "host": "localhost",
+        "port": 6379,
+        "db": 0
+    }
+}
