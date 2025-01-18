@@ -5,6 +5,7 @@ class RiskManagerAgent:
 
     def evaluate_risk(self, trade_signal, portfolio_state):
         # Simple risk management logic
+        # Need to improve this
         if portfolio_state.get_exposure() + trade_signal["risk"] > self.risk_tolerance:
             return False
         return True
