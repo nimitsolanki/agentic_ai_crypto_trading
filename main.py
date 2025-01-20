@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 from agents.coordinator_agent import CoordinatorAgent
 from utils.logger import setup_logging
+from utils.config_loader import ConfigLoader
 
 async def main():
     # Setup logging first
@@ -20,6 +21,9 @@ async def main():
             
         with config_path.open('r') as f:
             config = json.load(f)
+
+        # Load configuration with environment variables
+        config = ConfigLoader.load_config()
         
         # Initialize and run the coordinator agent
         coordinator = CoordinatorAgent(config)
