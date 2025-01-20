@@ -7,6 +7,7 @@
         "api_secret": "YOUR_BINANCE_SECRET_KEY"
     },
     "risk_management": {
+        "risk_tolerance": 0.5,
         "max_position_size": 1000,
         "max_daily_loss": 100,
         "max_open_positions": 3,
