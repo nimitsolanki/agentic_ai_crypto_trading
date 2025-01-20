@@ -7,13 +7,17 @@ from agents.coordinator_agent import CoordinatorAgent
 from utils.logger import setup_logging
 
 async def main():
-    # Setup logging
+    # Setup logging first
     setup_logging()
     logger = logging.getLogger(__name__)
     
     try:
         # Load configuration
         config_path = Path('config/config.json')
+        if not config_path.exists():
+            logger.error("Configuration file not found!")
+            return
+            
         with config_path.open('r') as f:
             config = json.load(f)
         
