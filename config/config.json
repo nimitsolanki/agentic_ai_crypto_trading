@@ -3,8 +3,8 @@
     "exchange": {
         "name": "binance",
         "testnet": true,
-        "api_key": "YOUR_BINANCE_API_KEY",
-        "api_secret": "YOUR_BINANCE_SECRET_KEY"
+        "api_key": "",
+        "api_secret": ""
     },
     "risk_management": {
         "risk_tolerance": 0.5,
@@ -15,7 +15,7 @@
         "risk_per_trade": 0.02
     },
     "data_collection": {
-        "timeframes": ["1m", "5m", "15m", "1h"],
+        "timeframes": ["1m", "5m", "15m"],
         "indicators": ["RSI", "MACD", "BB", "ATR"],
         "update_interval": 60
     },
