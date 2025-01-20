@@ -42,3 +42,6 @@ logs/
 
 # Config files with secrets
 config/secrets.json
+
+#test_telegram
+test_telegram.py
