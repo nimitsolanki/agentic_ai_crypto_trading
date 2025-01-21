@@ -7,38 +7,45 @@
         "api_secret": ""
     },
     "risk_management": {
-        "risk_tolerance": 0.5,
+        "risk_per_trade": 0.02,
         "max_position_size": 1000,
+        "max_positions": 3,
         "max_daily_loss": 100,
-        "max_open_positions": 3,
-        "position_sizing_model": "kelly",
-        "risk_per_trade": 0.02
+        "position_sizing_model": "kelly"
+    },
+    "analysis": {
+        "min_confidence": 0.6,
+        "strategy_weights": {
+            "trend_following": 0.4,
+            "mean_reversion": 0.3,
+            "momentum": 0.3
+        },
+        "indicators": {
+            "rsi_oversold": 30,
+            "rsi_overbought": 70,
+            "macd_fast": 12,
+            "macd_slow": 26,
+            "macd_signal": 9,
+            "volume_threshold": 1.2
+        },
+        "timeframes": ["1m", "5m", "15m"]
     },
     "data_collection": {
         "timeframes": ["1m", "5m", "15m"],
-        "indicators": ["RSI", "MACD", "BB", "ATR"],
         "update_interval": 60
-    },
-    "analysis": {
-        "min_confidence": 0.7,
-        "strategy_weights": {
-            "trend": 0.4,
-            "momentum": 0.3,
-            "volatility": 0.3
-        }
     },
     "execution": {
         "order_types": ["MARKET", "LIMIT"],
         "retry_attempts": 3,
         "retry_delay": 1
     },
-    "database": {
-        "url": "sqlite:///trading_data.db"
-    },
     "message_broker": {
         "host": "localhost",
         "port": 6379,
         "db": 0
+    },
+    "database": {
+        "url": "sqlite:///trading_data.db"
     },
     "telegram": {
         "bot_token": "BOT_TOKEN",

@@ -13,8 +13,22 @@ class MarketAnalystAgent:
         self.config = config
         self.message_broker = message_broker
         self.logger = logging.getLogger(__name__)
-        self.min_confidence = config['analysis']['min_confidence']
-        self.strategy_weights = config['analysis']['strategy_weights']
+        # self.min_confidence = config['analysis']['min_confidence']
+        # self.strategy_weights = config['analysis']['strategy_weights']
+
+         # Get analysis config with defaults
+        self.analysis_config = config.get('analysis', {})
+        self.min_confidence = self.analysis_config.get('min_confidence', 0.6)
+        self.strategy_weights = self.analysis_config.get('strategy_weights', {
+            'trend_following': 0.4,
+            'mean_reversion': 0.3,
+            'momentum': 0.3
+        })
+        self.indicators_config = self.analysis_config.get('indicators', {
+            'rsi_oversold': 30,
+            'rsi_overbought': 70,
+            'volume_threshold': 1.2
+        })
 
     def analyze_trend(self, df: pd.DataFrame) -> Dict:
         """Analyze market trend using multiple timeframes"""
@@ -139,44 +153,55 @@ class MarketAnalystAgent:
         except Exception as e:
             self.logger.error(f"Error in market analysis: {str(e)}")
 
+    # In the generate_signals method:
+
     def generate_signals(self, df: pd.DataFrame, indicators: Dict, market_state: Dict) -> List[TradeSignal]:
-        """Generate trading signals based on analysis"""
+        """Generate trading signals with enhanced strategy"""
         signals = []
         try:
             current_price = df['close'].iloc[-1]
-            
-            # Trend following signals
-            if market_state['trends']['medium']['direction'] == 'up' and \
-               indicators['macd']['macd'][-1] > indicators['macd']['signal'][-1]:
-                confidence = self.calculate_signal_confidence(indicators, market_state)
-                if confidence >= self.min_confidence:
-                    signals.append(TradeSignal(
-                        symbol=symbol,
-                        timestamp=datetime.now(),
-                        signal_type='trend_following',
-                        direction='buy',
-                        confidence=confidence,
-                        indicators=indicators,
-                        price=current_price,
-                        metadata={'trend_strength': market_state['trends']['medium']['strength']}
-                    ))
-                    
-            # Mean reversion signals
+            rsi = indicators['rsi'].iloc[-1]
+            macd = indicators['macd']['macd'].iloc[-1]
+            signal_line = indicators['macd']['signal'].iloc[-1]
             bb = indicators['bb']
-            if df['close'].iloc[-1] < bb['lower'].iloc[-1] and indicators['rsi'][-1] < 30:
-                confidence = self.calculate_signal_confidence(indicators, market_state)
-                if confidence >= self.min_confidence:
+            volume_ratio = df['volume'].iloc[-1] / df['volume'].rolling(20).mean().iloc[-1]
+
+            # Trend following strategy
+            if macd > signal_line and volume_ratio > 1.2:
+                if current_price > bb['middle'].iloc[-1]:
+                    confidence = min((macd - signal_line) / signal_line * 2, 0.95)
                     signals.append(TradeSignal(
-                        symbol=symbol,
-                        timestamp=datetime.now(),
-                        signal_type='mean_reversion',
-                        direction='buy',
+                        symbol=df['symbol'].iloc[-1],
+                        signal_type='trend_following',
+                        direction='BUY',
                         confidence=confidence,
-                        indicators=indicators,
                         price=current_price,
-                        metadata={'oversold': True}
+                        metadata={'strategy': 'trend_following'}
                     ))
-                    
+
+            # Mean reversion strategy
+            elif rsi < 30 and current_price < bb['lower'].iloc[-1]:
+                confidence = (30 - rsi) / 30
+                signals.append(TradeSignal(
+                    symbol=df['symbol'].iloc[-1],
+                    signal_type='mean_reversion',
+                    direction='BUY',
+                    confidence=confidence,
+                    price=current_price,
+                    metadata={'strategy': 'mean_reversion'}
+                ))
+
+            # Take profit signals
+            elif rsi > 70 or current_price > bb['upper'].iloc[-1]:
+                signals.append(TradeSignal(
+                    symbol=df['symbol'].iloc[-1],
+                    signal_type='take_profit',
+                    direction='SELL',
+                    confidence=0.8,
+                    price=current_price,
+                    metadata={'strategy': 'take_profit'}
+                ))
+
             return signals
 
         except Exception as e:

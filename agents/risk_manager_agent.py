@@ -70,26 +70,37 @@ class RiskManagerAgent:
             self.logger.error(f"Error calculating VaR: {str(e)}")
             return 0.0
 
+    # Update the calculate_position_size method:
     def calculate_position_size(self, signal: Dict, market_state: Dict) -> float:
-        """Calculate optimal position size using Kelly Criterion and risk limits"""
+        """Calculate optimal position size with adjusted risk parameters"""
         try:
-            # Get win rate and risk-reward ratio
-            win_rate = self.calculate_win_rate(signal['signal_type'])
-            risk_reward = self.calculate_risk_reward(signal, market_state)
-            
-            # Kelly Criterion calculation
-            kelly_fraction = win_rate - ((1 - win_rate) / risk_reward)
-            kelly_fraction = max(0, min(kelly_fraction * 0.5, 0.2))  # Half Kelly, max 20%
-            
-            # Apply position sizing constraints
             available_capital = self.portfolio_state.available_balance
+            
+            # Base position size on signal confidence
+            confidence_factor = signal.get('confidence', 0.5)
+            
+            # Adjust based on market condition
+            market_condition = self.identify_market_condition(market_state)
+            condition_multipliers = {
+                'trending': 1.2,
+                'ranging': 0.8,
+                'volatile': 0.5
+            }
+            
+            condition_factor = condition_multipliers.get(market_condition, 0.7)
+            
+            # Calculate position size
+            base_size = available_capital * self.config['risk_management']['risk_per_trade']
+            position_size = base_size * confidence_factor * condition_factor
+            
+            # Apply limits
             max_position = min(
-                available_capital * kelly_fraction,
-                self.risk_limits['max_position_size'],
-                available_capital * 0.1  # Max 10% of available capital
+                self.config['risk_management']['max_position_size'],
+                available_capital * 0.2  # Max 20% of available capital
             )
             
-            return max_position
+            return min(position_size, max_position)
+            
         except Exception as e:
             self.logger.error(f"Error calculating position size: {str(e)}")
             return 0.0

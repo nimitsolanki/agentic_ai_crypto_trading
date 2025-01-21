@@ -14,16 +14,25 @@ from agents.portfolio_manager_agent import PortfolioManagerAgent
 class CoordinatorAgent:
     def __init__(self, config: Dict):
         """Initialize the coordinator agent with all sub-agents and services"""
-        self.config = config
-        self.logger = logging.getLogger(__name__)
-        self.message_broker = MessageBroker(config)
-        self.notification_service = TelegramNotificationService(config)
-        self.agents = {}
-        self.system_status = {
-            'running': False,
-            'last_health_check': None,
-            'errors': []
-        }
+        try:
+            self.config = config
+            self.logger = logging.getLogger(__name__)
+            self.message_broker = MessageBroker(config)
+            self.notification_service = TelegramNotificationService(config)
+            self.agents = {}
+            self.system_status = {
+                'running': False,
+                'last_health_check': None,
+                'errors': []
+            }
+            
+            # Initialize agents
+            self.initialize_agents()
+            
+        except Exception as e:
+            error_msg = f"Failed to initialize agents: {str(e)}"
+            self.logger.error(error_msg)
+            raise
         
     async def initialize_agents(self):
         """Initialize all trading system agents"""
@@ -36,15 +45,20 @@ class CoordinatorAgent:
                 'execution': ExecutionAgent(self.config, self.message_broker)
             }
             
+            # Send initialization notification
             await self.notification_service.send_message(
                 "🚀 Trading System Initialized\n"
                 "All agents are ready to start operations."
             )
             
+            self.logger.info("Successfully initialized all agents")
+
+            
         except Exception as e:
             error_msg = f"Failed to initialize agents: {str(e)}"
             self.logger.error(error_msg)
-            await self.notification_service.send_message(f"⚠️ {error_msg}")
+            # await self.notification_service.send_message(f"⚠️ {error_msg}")
+            self.logger.error(error_msg)
             raise
 
     async def start_agents(self):

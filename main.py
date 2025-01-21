@@ -4,6 +4,7 @@ import json
 import logging
 from pathlib import Path
 from agents.coordinator_agent import CoordinatorAgent
+from utils.config_validator import validate_config
 from utils.logger import setup_logging
 from utils.config_loader import ConfigLoader
 
@@ -24,6 +25,9 @@ async def main():
 
         # Load configuration with environment variables
         config = ConfigLoader.load_config()
+
+        # Validate configuration
+        validate_config(config)
         
         # Initialize and run the coordinator agent
         coordinator = CoordinatorAgent(config)
